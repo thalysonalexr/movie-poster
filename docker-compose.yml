@@ -5,6 +5,7 @@ services:
     build: .
     ports:
       - "8080:8080"
-    command: fresh
+    command: bash -c "cd api && fresh"
     volumes:
       - .:/go/src/app
+      - ./api:/go/src/app/api

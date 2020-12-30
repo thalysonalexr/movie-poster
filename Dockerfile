@@ -19,4 +19,4 @@ RUN chown -R movieposter:movieposter /go/src/app
 USER movieposter
 
 EXPOSE 8080
-CMD ["fresh", "/go/src/app"]
+CMD ["fresh", "/go/src/app/api"]
