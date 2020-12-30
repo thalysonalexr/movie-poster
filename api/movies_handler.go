@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/codegangsta/negroni"
+	"github.com/gorilla/mux"
 	"github.com/thalysonalexr/movie-poster/usecase"
 )
 
@@ -18,8 +20,8 @@ func createError(err error, status int) []byte {
 }
 
 // GetMovies handler to get all movies
-func GetMovies(s usecase.Service) func(http.ResponseWriter, *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func listMovies(s usecase.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json;charset=utf-8")
 		gender := r.URL.Query().Get("gender")
 		movies, err := s.SearchByGender(gender)
@@ -46,5 +48,12 @@ func GetMovies(s usecase.Service) func(http.ResponseWriter, *http.Request) {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Write(encoded)
-	}
+	})
+}
+
+// MakeBookHandlers make url handlers
+func MakeBookHandlers(r *mux.Router, n negroni.Negroni, service usecase.Service) {
+	r.Handle("/movies", n.With(
+		negroni.Wrap(listMovies(service)),
+	)).Methods("GET", "OPTIONS").Name("listMovies")
 }
