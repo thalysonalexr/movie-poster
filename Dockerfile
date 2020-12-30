@@ -2,7 +2,9 @@ FROM golang:1.15 AS builder
 
 ENV GO111MODULE=on
 
-WORKDIR /app
+RUN useradd -ms /bin/bash movieposter
+
+WORKDIR /go/src/app
 
 COPY go.mod .
 COPY go.sum .
@@ -11,10 +13,10 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
+RUN go get github.com/pilu/fresh
 
-# final stage
-FROM scratch
-COPY --from=builder /app/movie-poster /app/
+RUN chown -R movieposter:movieposter /go/src/app
+USER movieposter
+
 EXPOSE 8080
-ENTRYPOINT ["/app/movie-poster"]
+CMD ["fresh", "/go/src/app"]
