@@ -2,6 +2,7 @@ package repo
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -29,5 +30,6 @@ func (r *MoviesRepositoryImpl) List() ([]entity.Movie, error) {
 	}
 	var movies = []entity.Movie{}
 	json.Unmarshal(body, &movies)
+	fmt.Println(movies[0:1])
 	return movies, nil
 }
