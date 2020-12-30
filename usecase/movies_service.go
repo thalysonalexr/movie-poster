@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/thalysonalexr/movie-poster/entity"
 	"github.com/thalysonalexr/movie-poster/infra/repo"
 )
@@ -80,9 +81,11 @@ func (service *ServiceImpl) DownloadPosters(k string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	path, _ := os.Getwd()
 	for i := range movies {
-		path, _ := os.Getwd()
-		downloadFile(movies[i].Poster, filepath.FromSlash(path+"/../tmp/"+renameFile(movies[i].Poster)))
+		filePath := filepath.FromSlash(path + "/tmp/" + renameFile(movies[i].Poster))
+		downloadFile(movies[i].Poster, filePath)
+		color.Cyan("Download file: " + movies[i].Poster)
 	}
 	return true, nil
 }

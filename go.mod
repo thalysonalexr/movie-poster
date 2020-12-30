@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/codegangsta/negroni v1.0.0
+	github.com/fatih/color v1.10.0
 	github.com/gorilla/context v1.1.1
 	github.com/gorilla/mux v1.8.0
 	github.com/howeyc/fsnotify v0.9.0 // indirect
