@@ -52,9 +52,26 @@ func listMovies(s usecase.Service) http.Handler {
 	})
 }
 
+// GetMovies handler to get all movies
+func downloadPosters(s usecase.Service) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gender := r.URL.Query().Get("gender")
+		success, err := s.DownloadPosters(gender)
+		if err != nil || !success {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	})
+}
+
 // MakeBookHandlers make url handlers
 func MakeBookHandlers(r *mux.Router, n negroni.Negroni, service usecase.Service) {
 	r.Handle("/movies", n.With(
 		negroni.Wrap(listMovies(service)),
 	)).Methods("GET", "OPTIONS").Name("listMovies")
+
+	r.Handle("/movies/download-posters", n.With(
+		negroni.Wrap(downloadPosters(service)),
+	)).Methods("GET", "OPTIONS").Name("downloadPosters")
 }
