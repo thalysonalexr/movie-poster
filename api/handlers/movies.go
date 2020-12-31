@@ -20,7 +20,6 @@ func createError(err error, status int) []byte {
 	return e
 }
 
-// GetMovies handler to get all movies
 func listMovies(s usecase.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json;charset=utf-8")
@@ -52,7 +51,6 @@ func listMovies(s usecase.Service) http.Handler {
 	})
 }
 
-// GetMovies handler to get all movies
 func downloadPosters(s usecase.Service) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		gender := r.URL.Query().Get("gender")
@@ -61,7 +59,7 @@ func downloadPosters(s usecase.Service) http.Handler {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusOK)
 	})
 }
 

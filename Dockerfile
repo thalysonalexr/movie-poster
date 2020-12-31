@@ -16,6 +16,8 @@ COPY . .
 RUN go get github.com/pilu/fresh
 
 RUN chown -R movieposter:movieposter /go/src/app
+
+WORKDIR /go/src/app/api
 USER movieposter
 
 EXPOSE 8080

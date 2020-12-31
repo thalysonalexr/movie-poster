@@ -23,11 +23,12 @@ func (r *MoviesRepositoryImpl) List() ([]entity.Movie, error) {
 	if err != nil {
 		return []entity.Movie{}, errors.FailedGetResourceMovies
 	}
+	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return []entity.Movie{}, errors.FailedToReadResponse
 	}
 	var movies = []entity.Movie{}
 	json.Unmarshal(body, &movies)
-	return movies, nil
+	return movies[0:50], nil
 }

@@ -7,7 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
+	pb "github.com/cheggaaa/pb/v3"
 	"github.com/fatih/color"
 	"github.com/thalysonalexr/movie-poster/entity"
 	"github.com/thalysonalexr/movie-poster/infra/repo"
@@ -31,25 +33,44 @@ func CreateNewService(r repo.Repository) *ServiceImpl {
 	}
 }
 
-func downloadFile(URL, fileName string) error {
+func downloadFile(URL string, fileName string, c chan string) (string, error) {
+	defer close(c)
 	res, err := http.Get(URL)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer res.Body.Close()
 	if res.StatusCode != 200 {
-		return errors.New("Received non 200 response code")
+		return "", errors.New("Received non 200 response code")
 	}
 	file, err := os.Create(fileName)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 	_, err = io.Copy(file, res.Body)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	c <- URL
+	return URL, nil
+}
+
+func makeChannels(movies []entity.Movie, cRes chan string) {
+	defer close(cRes)
+	var results = []chan string{}
+	path, _ := os.Getwd()
+
+	for i := range movies {
+		filePath := filepath.FromSlash(path + "/../tmp/" + renameFile(movies[i].Poster))
+		results = append(results, make(chan string))
+		go downloadFile(movies[i].Poster, filePath, results[i])
+	}
+	for i := range results {
+		for r := range results[i] {
+			cRes <- r
+		}
+	}
 }
 
 func renameFile(name string) string {
@@ -64,6 +85,7 @@ func (service *ServiceImpl) SearchByGender(k string) ([]entity.Movie, error) {
 		return []entity.Movie{}, err
 	}
 	filtered := []entity.Movie{}
+
 	for i := range movies {
 		for j := range movies[i].Genres {
 			if strings.Contains(strings.ToLower(movies[i].Genres[j]), strings.ToLower(k)) {
@@ -81,11 +103,17 @@ func (service *ServiceImpl) DownloadPosters(k string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	path, _ := os.Getwd()
-	for i := range movies {
-		filePath := filepath.FromSlash(path + "/tmp/" + renameFile(movies[i].Poster))
-		downloadFile(movies[i].Poster, filePath)
-		color.Cyan("Download file: " + movies[i].Poster)
+	ini := time.Now()
+	results := make(chan string)
+	go makeChannels(movies, results)
+
+	bar := pb.Full.Start(len(movies))
+
+	for range results {
+		bar.Increment()
 	}
+
+	bar.Finish()
+	color.Cyan("Service finish proccess. Duration %f secs\n", time.Since(ini).Seconds())
 	return true, nil
 }
