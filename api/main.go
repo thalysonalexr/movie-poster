@@ -25,7 +25,7 @@ func main() {
 		negroni.NewLogger(),
 	)
 
-	handlers.MakeBookHandlers(r, *n, service)
+	handlers.MakeMovieHandlers(r, *n, service)
 	http.Handle("/", r)
 
 	logger := log.New(os.Stderr, "logger: ", log.Lshortfile)

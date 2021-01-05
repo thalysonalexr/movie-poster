@@ -63,8 +63,8 @@ func downloadPosters(s usecase.Service) http.Handler {
 	})
 }
 
-// MakeBookHandlers make url handlers
-func MakeBookHandlers(r *mux.Router, n negroni.Negroni, service usecase.Service) {
+// MakeMovieHandlers make url handlers
+func MakeMovieHandlers(r *mux.Router, n negroni.Negroni, service usecase.Service) {
 	r.Handle("/movies", n.With(
 		negroni.Wrap(listMovies(service)),
 	)).Methods("GET", "OPTIONS").Name("listMovies")
