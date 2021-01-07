@@ -30,5 +30,5 @@ func (r *MoviesRepositoryImpl) List() ([]entity.Movie, error) {
 	}
 	var movies = []entity.Movie{}
 	json.Unmarshal(body, &movies)
-	return movies[0:50], nil
+	return movies, nil
 }
